@@ -43,7 +43,7 @@ module.exports = (req,res) =>{
                 for(let product of products){
                     content +=
                         `<div class="product-card">
-                            <img class="product-img" src="${product.image}">
+                            <img style="width:298px;height:298px;" class="product-img" src="${product.image}">
                             <h2>${product.name}</h2>
                             <p>${product.description}</p>
                         </div>`

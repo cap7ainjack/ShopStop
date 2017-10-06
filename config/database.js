@@ -27,7 +27,7 @@ module.exports.products.getAll = getProducts
 
 module.exports.products.add = (product) =>{
     let products = getProducts();
-    product.id = products.lenght + 1
+    product.id = products.length + 1
     products.push(product);
     
     saveProducts(products);

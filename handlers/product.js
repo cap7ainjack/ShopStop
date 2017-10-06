@@ -74,12 +74,25 @@ module.exports = (req, res) => {
         })
 
         form.on('close', () => {
-            database
-                .products
-                .add(product);
 
-            res.writeHead(302, {Location: '/'})
-            res.end();
+            //Form Validation
+            let validAddForm = true;
+
+            for (let prop in product) {
+                if (product[prop] === "" && prop !== 'id') {
+                    validAddForm = false;
+                }
+            }
+
+            if (validAddForm) {
+                database
+                    .products
+                    .add(product);
+
+                res.writeHead(302, {Location: '/'})
+                res.end();
+            }
+
         })
 
         form.parse(req);

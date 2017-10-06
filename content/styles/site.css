@@ -4,6 +4,19 @@ html, body {
   height: 100%;
 }
 
+header{
+  background-color: whitesmoke;
+}
+
+#searchButton {
+  border-radius: 5px;
+  border: 0;
+  width: 80px;
+  height:25px;
+  font-family: Tahoma;
+  background: #f4f4f4;
+}
+
 body {
   font-family: Lato;
   margin: 0;
