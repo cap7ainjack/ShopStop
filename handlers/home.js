@@ -3,61 +3,58 @@ const fs = require('fs');
 const path = require('path');
 const qs = require('querystring');
 
-const database =require('../config/database');
+const Product = require('../models/Product');
 
-module.exports = (req,res) =>{
-    req.pathname = req.pathname || url.parse(req.url).pathname
+module.exports = (req, res) => {
+    req.pathname = req.pathname || url
+        .parse(req.url)
+        .pathname
 
-    if(req.pathname === '/' && req.method === 'GET'){
+    if (req.pathname === '/' && req.method === 'GET') {
         //path module is just utility module
-        let filePath = path.normalize(
-            path.join(__dirname, '../views/home/index.html'))
+        let filePath = path.normalize(path.join(__dirname, '../views/home/index.html'))
 
-            fs.readFile(filePath, (err, data) => {
-                if(err){
-                    console.log(err)
-                    res.writeHead(404, {
-                        'Content-Type':'text/plain'
-                    })
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                console.log(err)
+                res.writeHead(404, {'Content-Type': 'text/plain'})
 
-                    res.write('404 not found!')
-                    res.end();
-                    return
-                }
+                res.write('404 not found!')
+                res.end();
+                return
+            }
 
-                //add all products to home page
-                let products = database.products.getAll();
-                
-                //search input
-                let queryData = qs.parse(url.parse(req.url).query)
-                
-                let query = queryData.query;
+            //search input
+            let queryData = qs.parse(url.parse(req.url).query)
 
-                if(query){
-                    products = products.filter((product) => {
-                        return product.name.indexOf(query) !== -1 || product.description.indexOf(query) !== -1
-                    })
-                }
+            //add all products to home page
+            Product
+                .find()
+                .then((products) => {
+                    //search input
+                    if (queryData.query) {
+                        products = products.filter(p => p.name.toLowerCase().includes(queryData.query.toLowerCase()));
+                    }
 
-                let content = '';
-                for(let product of products){
-                    content +=
-                        `<div class="product-card">
+                    let content = '';
+                    for (let product of products) {
+                        content += `<div class="product-card">
                             <img style="width:298px;height:298px;" class="product-img" src="${product.image}">
                             <h2>${product.name}</h2>
                             <p>${product.description}</p>
                         </div>`
-                }
+                    }
 
-                let html = data.toString().replace('{content}',content);
+                    let html = data
+                        .toString()
+                        .replace('{content}', content);
 
-                res.writeHead(200, {
-                    'Content-Type':'text/html'
+                    res.writeHead(200, {'Content-Type': 'text/html'})
+                    res.write(html)
+                    res.end();
                 })
-                res.write(html)
-                res.end();
-            })        
-    }else {
+        })
+    } else {
         return true;
     }
 }

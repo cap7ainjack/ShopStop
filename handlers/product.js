@@ -1,5 +1,4 @@
 const url = require('url');
-const database = require('../config/database')
 const fs = require('fs');
 const path = require('path');
 const qs = require('querystring');
@@ -7,9 +6,8 @@ const qs = require('querystring');
 const multiparty = require('multiparty') //externally added – for parsing data from the html form
 const shortId = require('shortid') //external - for generating random names for files
 
-function getContentType(url) {
-    return url.substr(url.indexOf('.'))
-}
+const Product = require('../models/Product');
+const Category = require('../models/Category');
 
 module.exports = (req, res) => {
     req.pathname = req.pathname || url
@@ -22,15 +20,26 @@ module.exports = (req, res) => {
         fs.readFile(filePath, (err, data) => {
             if (err) {
                 console.log(err)
+                return;
             }
 
-            res.writeHead(200, {
-                'Content-Type': getContentType(req.pathname)
-            })
+            Category
+                .find()
+                .then((categories) => {
+                    let replacment = `<select class="input-field" name="category">`
+                    for (let category of categories) {
+                        replacment += `$<option value="${category._id}">${category.name}</option>`
+                    }
+                    replacment += '</select>'
 
-            res.write(data)
-            res.end();
+                    let html = data
+                        .toString()
+                        .replace('{categories}', replacment);
+                    res.writeHead(200, {'content-type': 'text/html'})
 
+                    res.write(html)
+                    res.end();
+                })
         })
     } else if (req.pathname === '/product/add' && req.method === "POST") {
 
@@ -74,10 +83,8 @@ module.exports = (req, res) => {
         })
 
         form.on('close', () => {
-
             //Form Validation
             let validAddForm = true;
-
             for (let prop in product) {
                 if (product[prop] === "" && prop !== 'id') {
                     validAddForm = false;
@@ -85,14 +92,22 @@ module.exports = (req, res) => {
             }
 
             if (validAddForm) {
-                database
-                    .products
-                    .add(product);
+                Product
+                    .create(product)
+                    .then((insertedProduct) => {
+                        Category
+                            .findById(product.category)
+                            .then(category => {
+                                category
+                                    .products
+                                    .push(insertedProduct._id)
+                                category.save();
 
-                res.writeHead(302, {Location: '/'})
-                res.end();
+                                res.writeHead(302, {Location: '/'})
+                                res.end();
+                            })
+                    })
             }
-
         })
 
         form.parse(req);
