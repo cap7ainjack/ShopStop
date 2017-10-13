@@ -5,56 +5,20 @@ const qs = require('querystring');
 
 const Product = require('../models/Product');
 
-module.exports = (req, res) => {
-    req.pathname = req.pathname || url
-        .parse(req.url)
-        .pathname
+module.exports.index = (req, res) => {
 
-    if (req.pathname === '/' && req.method === 'GET') {
-        //path module is just utility module
-        let filePath = path.normalize(path.join(__dirname, '../views/home/index.html'))
+    //search input
+    let queryData = req.query //qs.parse(url.parse(req.url).query)
 
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                console.log(err)
-                res.writeHead(404, {'Content-Type': 'text/plain'})
-
-                res.write('404 not found!')
-                res.end();
-                return
+    //add all products to home page
+    Product
+        .find()
+        .then((products) => {
+            //search input
+            if (queryData.query) {
+                products = products.filter(p => p.name.toLowerCase().includes(queryData.query.toLowerCase()));
             }
 
-            //search input
-            let queryData = qs.parse(url.parse(req.url).query)
-
-            //add all products to home page
-            Product
-                .find()
-                .then((products) => {
-                    //search input
-                    if (queryData.query) {
-                        products = products.filter(p => p.name.toLowerCase().includes(queryData.query.toLowerCase()));
-                    }
-
-                    let content = '';
-                    for (let product of products) {
-                        content += `<div class="product-card">
-                            <img style="width:298px;height:298px;" class="product-img" src="${product.image}">
-                            <h2>${product.name}</h2>
-                            <p>${product.description}</p>
-                        </div>`
-                    }
-
-                    let html = data
-                        .toString()
-                        .replace('{content}', content);
-
-                    res.writeHead(200, {'Content-Type': 'text/html'})
-                    res.write(html)
-                    res.end();
-                })
+            res.render('home/index', {products: products})
         })
-    } else {
-        return true;
-    }
 }
