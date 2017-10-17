@@ -1,4 +1,4 @@
-const port = 3000;
+const port = 2323;
 const config = require('./config/config');
 const database = require('./config/database.config')
 
@@ -12,6 +12,9 @@ database(config[environment])
 
 require('./config/express')(app, config[environment])
 require('./config/routes')(app)
+
+require('./config/routes')(app);
+require('./config/passport')();
 
 app.listen(port)
 

@@ -18,11 +18,23 @@ html(lang='en')
           li
             a(href='/category/add') Add Category
           li.delimeter
-          li.align-right  
-            a(href='/user/register') Register
-          li.align-right  
-            a(href='/user/login') Login
+          if user
+            li.align-right  
+              form#logout-form(action='/logout', method='post')
+              a(href="javascript:document.getElementById('logout-form').submit()") Logout
+            li.align-right 
+              span= user.username
+          else 
+            li.align-right 
+             a(href='/user/register') Register
+            li.align-right  
+             a(href='/user/login') Login
 
+    if error
+      h2.error-msg= error
+    else if success
+      h2.success-msg= success
+      
     main
       block content
     footer

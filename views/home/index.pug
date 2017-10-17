@@ -8,7 +8,7 @@ block content
   .cards
     each product in products
       .product-card
-        img.product-img(src=`${product.image}`)
+        img.product-img(src=`${product.image}`, height='270', width='54')
         h2=product.name
         p=product.description
 
